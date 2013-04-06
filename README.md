@@ -41,7 +41,7 @@ Using the ATA's "Offhook Auto-Dial" feature, I configured it to automatically (s
 	[2600]
 	canreinvite=no
 	callerid=<...>
-	context=payphone-outbound
+	context=payphone-totalizer
 	dtmfmode=inband
 	host=dynamic
 	nat=yes
@@ -55,7 +55,7 @@ Using the ATA's "Offhook Auto-Dial" feature, I configured it to automatically (s
 
 *Relevant Asterisk `extensions.conf` configuration to take over the call as soon as `0` is dialed by the ATA:*
 
-	[payphone-outbound]
+	[payphone-totalizer]
 	exten => 0,1,Answer
 	exten => 0,2,AGI(payphone.agi)
 	exten => 0,3,Hangup

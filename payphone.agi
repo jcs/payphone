@@ -1,23 +1,93 @@
 #!/usr/bin/perl
 
 use Asterisk::AGI;
+use Cwd "realpath";
+use File::Basename;
 use strict;
+
+use constant {
+	# where we live
+	SOUND_DIR => dirname(realpath($0)),
+
+	# outbound context we'll send calls to (since our current context should
+	# only allow dialing 0 from the ATA)
+	OUTBOUND_CONTEXT => "payphone-outbound",
+
+	# timeout in seconds to wait to get a number or a coin
+	TIMEOUT => 10,
+
+	# amount required to make a call
+	CALL_CENTS => 25,
+
+	# numbers allowed to be dialed without requiring coins
+	FREE_CALLS => qr/^(1?(8[02345678]{2})[0-9]{7}|911)/,
+
+	# valid numbers which will immediately dial instead of timing out
+	VALID_NUMBER => qr/^(1?[2-8][0-9]{9}|911)/,
+};
 
 my $AGI = new Asterisk::AGI;
 
+my $last_activity = time();
 my $inserted = 0;
-my $dialed = ""
+my $dialed = "";
+
+# generate dialtone while we wait for coins
+$AGI->exec("Playtones", "dial");
 
 while (1) {
 	my $dig = $AGI->wait_for_digit(1000);
-	next if ($dig <= 0);
 
-	if ($dig == ord('$')) {
-		$inserted += 5;
-		$AGI->verbose("got 5-cent tone (now " . $inserted . " cents)", 5);
+	if ($dig >= 1) {
+		if ($dig == ord('$')) {
+			$inserted += 5;
+			$AGI->verbose("got 5-cent tone (now " . $inserted . " cents)", 5);
+		}
+		else {
+			$AGI->exec("StopPlaytones", "dial");
+			$dialed .= chr($dig);
+			$AGI->verbose("dialed " . chr($dig) . " (now " . $dialed . ")", 5);
+		}
+
+		$last_activity = time();
 	}
-	else {
-		$dialed .= chr($dig);
-		$AGI->verbose("dialed " . chr($dig) . " (now " . $dialed . ")", 5);
+
+	my $elapsed = time() - $last_activity;
+
+	if ($dialed =~ FREE_CALLS) {
+		$AGI->verbose("connecting to " . $dialed . " (free call)", 1);
+		dial($dialed);
+		exit;
 	}
+	elsif ($dialed =~ VALID_NUMBER) {
+		if ($inserted < CALL_CENTS) {
+			$AGI->verbose("need " . CALL_CENTS . " cents to dial " . $dialed
+				. ", have " . $inserted, 5);
+
+			$AGI->stream_file(SOUND_DIR . "/not_deposited", "0");
+		}
+		else {
+			$AGI->verbose("connecting to " . $dialed . " (inserted "
+				. $inserted . " cents)", 1);
+			dial($dialed);
+		}
+		exit;
+	}
+	elsif ($elapsed >= TIMEOUT) {
+		$AGI->verbose("timed out waiting for coins or digits", 1);
+
+		if ($dialed ne "") {
+			$AGI->stream_file(SOUND_DIR . "/invalid_number", "0");
+		}
+
+		exit;
+	}
+}
+
+sub dial {
+	my ($number) = @_;
+
+	$AGI->set_context(OUTBOUND_CONTEXT);
+	$AGI->set_extension($dialed);
+	$AGI->exec("Goto", "1");
 }
