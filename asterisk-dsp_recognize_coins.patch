@@ -1,7 +1,7 @@
 # adapted from https://github.com/saizai/wumpusphone/blob/master/asterisk-1.8.0.patch#L251
 
 --- main/dsp.c.orig	Thu Oct  4 15:15:35 2012
-+++ main/dsp.c	Fri Apr  5 21:02:56 2013
++++ main/dsp.c	Sat Apr  6 00:29:38 2013
 @@ -160,6 +160,7 @@ enum gsamp_thresh {
  
  #define DTMF_THRESHOLD		8.0e7
@@ -43,18 +43,19 @@
  static int thresholds[THRESHOLD_MAX];
  static float dtmf_normal_twist;		/* AT&T = 8dB */
  static float dtmf_reverse_twist;	/* AT&T = 4dB */
-@@ -506,6 +514,10 @@ static void ast_dtmf_detect_init (dtmf_detect_state_t 
+@@ -504,8 +512,10 @@ static void ast_dtmf_detect_init (dtmf_detect_state_t 
+ 	for (i = 0;  i < 4;  i++) {
+ 		goertzel_init(&s->row_out[i], dtmf_row[i], DTMF_GSIZE);
  		goertzel_init(&s->col_out[i], dtmf_col[i], DTMF_GSIZE);
- 		s->energy = 0.0;
+-		s->energy = 0.0;
  	}
 +	goertzel_init(&s->coin_out_low, coin_tone_low, DTMF_GSIZE);
-+	s->energy = 0.0;
 +	goertzel_init(&s->coin_out_high, coin_tone_high, DTMF_GSIZE);
 +	s->energy = 0.0;
  	s->current_sample = 0;
  	s->hits = 0;
  	s->misses = 0;
-@@ -659,6 +671,8 @@ static int dtmf_detect(struct ast_dsp *dsp, digit_dete
+@@ -659,6 +669,8 @@ static int dtmf_detect(struct ast_dsp *dsp, digit_dete
  {
  	float row_energy[4];
  	float col_energy[4];
@@ -63,7 +64,7 @@
  	int i;
  	int j;
  	int sample;
-@@ -697,6 +711,8 @@ static int dtmf_detect(struct ast_dsp *dsp, digit_dete
+@@ -697,6 +709,8 @@ static int dtmf_detect(struct ast_dsp *dsp, digit_dete
  			goertzel_sample(s->td.dtmf.col_out + 2, samp);
  			goertzel_sample(s->td.dtmf.row_out + 3, samp);
  			goertzel_sample(s->td.dtmf.col_out + 3, samp);
@@ -72,7 +73,7 @@
  		}
  		s->td.dtmf.current_sample += (limit - sample);
  		if (s->td.dtmf.current_sample < DTMF_GSIZE) {
-@@ -718,6 +734,21 @@ static int dtmf_detect(struct ast_dsp *dsp, digit_dete
+@@ -718,6 +732,21 @@ static int dtmf_detect(struct ast_dsp *dsp, digit_dete
  			}
  		}
  		hit = 0;
@@ -94,7 +95,7 @@
  		/* Basic signal level test and the twist test */
  		if (row_energy[best_row] >= DTMF_THRESHOLD && 
  		    col_energy[best_col] >= DTMF_THRESHOLD &&
-@@ -842,6 +873,8 @@ static int dtmf_detect(struct ast_dsp *dsp, digit_dete
+@@ -842,6 +871,8 @@ static int dtmf_detect(struct ast_dsp *dsp, digit_dete
  			goertzel_reset(&s->td.dtmf.row_out[i]);
  			goertzel_reset(&s->td.dtmf.col_out[i]);
  		}
