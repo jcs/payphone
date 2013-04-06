@@ -1,0 +1,23 @@
+#!/usr/bin/perl
+
+use Asterisk::AGI;
+use strict;
+
+my $AGI = new Asterisk::AGI;
+
+my $inserted = 0;
+my $dialed = ""
+
+while (1) {
+	my $dig = $AGI->wait_for_digit(1000);
+	next if ($dig <= 0);
+
+	if ($dig == ord('$')) {
+		$inserted += 5;
+		$AGI->verbose("got 5-cent tone (now " . $inserted . " cents)", 5);
+	}
+	else {
+		$dialed .= chr($dig);
+		$AGI->verbose("dialed " . chr($dig) . " (now " . $dialed . ")", 5);
+	}
+}
