@@ -34,6 +34,7 @@ my $dialed = "";
 
 # generate dialtone while we wait for coins
 $AGI->exec("Playtones", "dial");
+my $dialtone = 1;
 
 while (1) {
 	my $dig = $AGI->wait_for_digit(1000);
@@ -44,7 +45,11 @@ while (1) {
 			$AGI->verbose("got 5-cent tone (now " . $inserted . " cents)", 5);
 		}
 		else {
-			$AGI->exec("StopPlaytones", "dial");
+			if ($dialtone) {
+				$AGI->exec("StopPlaytones", "dial");
+				$dialtone = 0;
+			}
+
 			$dialed .= chr($dig);
 			$AGI->verbose("dialed " . chr($dig) . " (now " . $dialed . ")", 5);
 		}
