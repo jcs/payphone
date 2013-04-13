@@ -3,6 +3,7 @@
 use Asterisk::AGI;
 use Cwd "realpath";
 use File::Basename;
+use Time::HiRes;
 use strict;
 
 use constant {
@@ -29,6 +30,7 @@ use constant {
 my $AGI = new Asterisk::AGI;
 
 my $last_activity = time();
+my @last_coins;
 my $inserted = 0;
 my $dialed = "";
 
@@ -41,8 +43,33 @@ while (1) {
 
 	if ($dig >= 1) {
 		if ($dig == ord('$')) {
-			$inserted += 5;
-			$AGI->verbose("got 5-cent tone (now " . $inserted . " cents)", 5);
+			# shift out old coins
+			my @new_coins;
+			for (my $x = 0; $x <= $#last_coins; $x++) {
+				if (Time::HiRes::time - $last_coins[$x] < 0.5) {
+					push(@new_coins, $last_coins[$x]);
+				}
+			}
+			@last_coins = @new_coins;
+
+			push(@last_coins, Time::HiRes::time);
+
+			# if we've heard 3 coin tones in close proximity, always count it
+			# as 5 since we might not hear the other 2
+			if ($#last_coins == 2) {
+				$inserted += 15;
+				$AGI->verbose("got 5-cent tone, counting as 15 cents (now "
+					. $inserted . " cents)", 5);
+			}
+			elsif ($#last_coins > 2) {
+				$AGI->verbose("ignoring 4th or 5th 5-cent tone of 25-cents "
+					. "(still " . $inserted . " cents)", 5);
+			}
+			else {
+				$inserted += 5;
+				$AGI->verbose("got 5-cent tone (now " . $inserted . " cents)",
+					5);
+			}
 		}
 		else {
 			if ($dialtone) {
