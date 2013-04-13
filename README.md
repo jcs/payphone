@@ -103,3 +103,5 @@ My routing script is [under development here](payphone.agi).
 ####TODO
 
 - Make the coin hopper queue up coins when inserted rather than immediately dropping them into the coin box, to allow for refunding.  This [requires sending high voltage](http://oldphoneguy.net/images/MPPwk.pdf) ([2](http://atcaonline.com/controller.html)) to the coin relay, and would have to be done out-of-band.
+
+- Sometimes Asterisk only recognizes 3 of the 5 tones for a quarter, probably due to the VoIP stream having to go over the Internet.  Since the only way 3 tones can get played in such a short duration is from a quarter, the script should recognize 3 or more tones in a short duration as a quarter and just ignore the other 2 if they are heard.
