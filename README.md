@@ -12,6 +12,8 @@ I purchased a new [handset](http://www.payphone.com/Standard-Handset.html), [mou
 
 The instruction cards install by unscrewing a very tiny allen bolt in the front of the housing to allow the card to slide up and then back down.
 
+The replacement handset was wired differently than the handset that came with the phone, which initially caused the mouthpiece not to transmit any audio.  By touching a AA battery to the wires of the disconnected handset, I was able to figure out which wires went to the earpiece and which to the mouthpiece.  The handset's red wire is connected to terminal 3, yellow to 4, green to 6, and black to 8.
+
 ####Mounting
 
 To mount the phone to my wall, I drilled 3 holes into the brick and secured the backing plate to the wall with masonry anchors.  The mounting studs hand-screwed into the back of the phone which allowed the phone to easily hang on the backplate, aligning the 12 holes in the back of the phone to the 1/4x20 threaded holes in the backplate.
