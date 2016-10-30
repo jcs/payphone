@@ -1,17 +1,18 @@
 # adapted from https://github.com/saizai/wumpusphone/blob/master/asterisk-1.8.0.patch#L251
+# Updated for Asterisk 13.11.2
 
---- main/dsp.c.orig	Thu Oct  4 15:15:35 2012
-+++ main/dsp.c	Sat Apr  6 00:29:38 2013
-@@ -160,6 +160,7 @@ enum gsamp_thresh {
+--- main/dsp.c.orig	2016-09-09 09:14:37.000000000 -0700
++++ main/dsp.c	2016-09-13 07:31:07.428427225 -0700
+@@ -172,6 +172,7 @@
  
  #define DTMF_THRESHOLD		8.0e7
- #define FAX_THRESHOLD		8.0e7
+ #define TONE_THRESHOLD		7.8e7
 +#define COIN_THRESHOLD		8.0e7
- #define FAX_2ND_HARMONIC	2.0     /* 4dB */
  
  #define DEF_DTMF_NORMAL_TWIST		6.31	 /* 8.0dB */
-@@ -179,6 +180,8 @@ enum gsamp_thresh {
- #define DTMF_2ND_HARMONIC_COL	63.1    /* 18dB */
+ #define DEF_RELAX_DTMF_NORMAL_TWIST	6.31	 /* 8.0dB */
+@@ -188,6 +189,8 @@
+ #define DTMF_RELATIVE_PEAK_COL	6.3     /* 8dB */
  #define DTMF_TO_TOTAL_ENERGY	42.0
  
 +#define COIN_TO_TOTAL_ENERGY	42.0
@@ -19,7 +20,7 @@
  #define BELL_MF_THRESHOLD	1.6e9
  #define BELL_MF_TWIST		4.0     /* 6dB */
  #define BELL_MF_RELATIVE_PEAK	12.6    /* 11dB */
-@@ -271,6 +274,8 @@ typedef struct
+@@ -271,6 +274,8 @@
  {
  	goertzel_state_t row_out[4];
  	goertzel_state_t col_out[4];
@@ -28,7 +29,7 @@
  	int hits;			/* How many successive hits we have seen already */
  	int misses;			/* How many successive misses we have seen already */
  	int lasthit;
-@@ -309,11 +314,14 @@ static const float dtmf_row[] = {
+@@ -309,11 +314,14 @@
  static const float dtmf_col[] = {
  	1209.0, 1336.0, 1477.0, 1633.0
  };
@@ -43,19 +44,16 @@
  static int thresholds[THRESHOLD_MAX];
  static float dtmf_normal_twist;		/* AT&T = 8dB */
  static float dtmf_reverse_twist;	/* AT&T = 4dB */
-@@ -504,8 +512,10 @@ static void ast_dtmf_detect_init (dtmf_detect_state_t 
- 	for (i = 0;  i < 4;  i++) {
- 		goertzel_init(&s->row_out[i], dtmf_row[i], DTMF_GSIZE);
- 		goertzel_init(&s->col_out[i], dtmf_col[i], DTMF_GSIZE);
--		s->energy = 0.0;
+@@ -498,6 +506,8 @@
+ 		goertzel_init(&s->row_out[i], dtmf_row[i], sample_rate);
+ 		goertzel_init(&s->col_out[i], dtmf_col[i], sample_rate);
  	}
 +	goertzel_init(&s->coin_out_low, coin_tone_low, DTMF_GSIZE);
 +	goertzel_init(&s->coin_out_high, coin_tone_high, DTMF_GSIZE);
-+	s->energy = 0.0;
- 	s->current_sample = 0;
- 	s->hits = 0;
- 	s->misses = 0;
-@@ -659,6 +669,8 @@ static int dtmf_detect(struct ast_dsp *dsp, digit_dete
+ 	s->lasthit = 0;
+ 	s->current_hit = 0;
+ 	s->energy = 0.0;
+@@ -656,6 +666,8 @@
  {
  	float row_energy[4];
  	float col_energy[4];
@@ -64,7 +62,7 @@
  	int i;
  	int j;
  	int sample;
-@@ -697,6 +709,8 @@ static int dtmf_detect(struct ast_dsp *dsp, digit_dete
+@@ -694,6 +706,8 @@
  			goertzel_sample(s->td.dtmf.col_out + 2, samp);
  			goertzel_sample(s->td.dtmf.row_out + 3, samp);
  			goertzel_sample(s->td.dtmf.col_out + 3, samp);
@@ -73,7 +71,7 @@
  		}
  		s->td.dtmf.current_sample += (limit - sample);
  		if (s->td.dtmf.current_sample < DTMF_GSIZE) {
-@@ -718,6 +732,21 @@ static int dtmf_detect(struct ast_dsp *dsp, digit_dete
+@@ -715,6 +729,21 @@
  			}
  		}
  		hit = 0;
@@ -93,9 +91,9 @@
 +				hit = coin_char;
 +		}
  		/* Basic signal level test and the twist test */
- 		if (row_energy[best_row] >= DTMF_THRESHOLD && 
+ 		if (row_energy[best_row] >= DTMF_THRESHOLD &&
  		    col_energy[best_col] >= DTMF_THRESHOLD &&
-@@ -842,6 +871,8 @@ static int dtmf_detect(struct ast_dsp *dsp, digit_dete
+@@ -839,6 +868,8 @@
  			goertzel_reset(&s->td.dtmf.row_out[i]);
  			goertzel_reset(&s->td.dtmf.col_out[i]);
  		}
