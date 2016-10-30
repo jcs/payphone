@@ -1,8 +1,8 @@
 ##Payphone Project
 
-These are some notes from my project to install a working payphone in my apartment and configure it to make and receive calls through an Asterisk PBX.
+These are some notes from my project to install a working payphone in my home and configure it to make and receive calls through an Asterisk PBX.
 
-[![](http://i.imgur.com/N9jgE3Wl.jpg)](http://imgur.com/N9jgE3W) [![](http://i.imgur.com/pq4ABcfl.jpg)](http://imgur.com/pq4ABcf)
+[![](https://i.imgur.com/gn6paGq.jpg)](https://i.imgur.com/gn6paGq.jpg) [![](https://i.imgur.com/QBEGEvc.jpg)](https://i.imgur.com/QBEGEvc.jpg)
 
 ####The Phone
 
@@ -16,7 +16,7 @@ The replacement handset was wired differently than the handset that came with th
 
 ####Mounting
 
-To mount the phone to my wall, I drilled 3 holes into the brick and secured the backing plate to the wall with masonry anchors.  The mounting studs hand-screwed into the back of the phone which allowed the phone to easily hang on the backplate, aligning the 12 holes in the back of the phone to the 1/4x20 threaded holes in the backplate.
+To mount the phone to my wall, I drilled 5 holes into a wall stud and secured the backing plate to the wall with 2 1/4" screws.  The mounting studs hand-screwed into the back of the phone which allowed the phone to easily hang on the backplate, aligning the 12 holes in the back of the phone to the 1/4x20 threaded holes in the backplate.
 
 The phone is mounted at the standard height of 63" from the floor to the top of the housing.
 
@@ -30,7 +30,7 @@ Newer "smart" (Elcotel-style) payphones are commonly owned by private companies 
 
 Since this phone has always worked with a normal POTS line, making it work now just requires hooking up the red and green wires of an RJ11 cable to the Ring and Tip terminals in the phone.  It rings, dials, and otherwise functions just like a normal analog telephone.
 
-I connected the phone to a Grandstream HT701 SIP ATA and was able to make and receive calls through an Asterisk soft PBX, with dialtone coming from the ATA.  I registered an inbound number through Twilio (appropriately enough, one ending in -2600) and routed it to the Asterisk server.  Outbound SIP is handled through an existing SIP peer.
+I connected the phone to a Grandstream HT701 SIP ATA and was able to make and receive calls through an Asterisk soft PBX, with dialtone coming from the ATA.  I registered an inbound number through Twilio (appropriately enough, one ending in -2600) and routed it to the Asterisk server via SIP.
 
 Since this a payphone, after all, it should require depositing coins to make a call.  Much older phones (like 3-slot rotary phones) required coins to be deposited before hearing a dial tone.  These were mostly phased out by the 1970s and replaced with phones that provided a dial tone first, allowing emergency calls without depositing coins as well as depositing extra coins for long-distance calls.  Using Asterisk, this payphone will be configured to provide a dial tone first and allow free emergency calls, but require 25 cents to call any other number.
 
