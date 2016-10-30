@@ -15,7 +15,7 @@ use constant {
 	OUTBOUND_CONTEXT => "payphone-outbound",
 
 	# timeout in seconds to wait to get a number or a coin
-	TIMEOUT => 10,
+	TIMEOUT => 30,
 
 	# amount required to make a call
 	CALL_CENTS => 25,
@@ -43,6 +43,8 @@ while (1) {
 
 	if ($dig >= 1) {
 		if ($dig == ord('$')) {
+			$AGI->verbose("got coin tone at " . Time::HiRes::time, 4);
+
 			# shift out old coins
 			my @new_coins;
 			for (my $x = 0; $x <= $#last_coins; $x++) {
@@ -59,16 +61,18 @@ while (1) {
 			if ($#last_coins == 2) {
 				$inserted += 15;
 				$AGI->verbose("got 5-cent tone, counting as 15 cents (now "
-					. $inserted . " cents)", 5);
+					. $inserted . " cents)", 4);
+				# provide some audible feedback that it's ok to make a call
+				$AGI->exec("Playtones", "stutter");
 			}
 			elsif ($#last_coins > 2) {
 				$AGI->verbose("ignoring 4th or 5th 5-cent tone of 25-cents "
-					. "(still " . $inserted . " cents)", 5);
+					. "(still " . $inserted . " cents)", 4);
 			}
 			else {
 				$inserted += 5;
 				$AGI->verbose("got 5-cent tone (now " . $inserted . " cents)",
-					5);
+					4);
 			}
 		}
 		else {
@@ -78,7 +82,7 @@ while (1) {
 			}
 
 			$dialed .= chr($dig);
-			$AGI->verbose("dialed " . chr($dig) . " (now " . $dialed . ")", 5);
+			$AGI->verbose("dialed " . chr($dig) . " (now " . $dialed . ")", 4);
 		}
 
 		$last_activity = time();
@@ -94,7 +98,7 @@ while (1) {
 	elsif ($dialed =~ VALID_NUMBER) {
 		if ($inserted < CALL_CENTS) {
 			$AGI->verbose("need " . CALL_CENTS . " cents to dial " . $dialed
-				. ", have " . $inserted, 5);
+				. ", have " . $inserted, 4);
 
 			$AGI->stream_file(SOUND_DIR . "/not_deposited", "0");
 		}
