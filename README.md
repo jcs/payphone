@@ -1,10 +1,10 @@
-##Payphone Project
+## Payphone Project
 
 These are some notes from my project to install a working payphone in my home and configure it to make and receive calls through an Asterisk PBX.
 
 [![](https://i.imgur.com/gn6paGq.jpg)](https://i.imgur.com/gn6paGq.jpg) [![](https://i.imgur.com/QBEGEvc.jpg)](https://i.imgur.com/QBEGEvc.jpg)
 
-####The Phone
+#### The Phone
 
 This is a Western Electric/AT&T 1D2 single-slot "dumb" payphone, popular in the 1980s.  It came with a T-key but no upper or lower locks or keys.  The handset was pretty gross and there were no upper or lower instruction cards.  Shipping was a bit expensive since the phone weighs nearly 50 pounds.
 
@@ -14,13 +14,13 @@ The instruction cards install by unscrewing a very tiny allen bolt in the front 
 
 The replacement handset was wired differently than the handset that came with the phone, which initially caused the mouthpiece not to transmit any audio.  By touching a AA battery to the wires of the disconnected handset, I was able to figure out which wires went to the earpiece and which to the mouthpiece.  The handset's red wire is connected to terminal 3, yellow to 4, green to 6, and black to 8.
 
-####Mounting
+#### Mounting
 
 To mount the phone to my wall, I drilled 5 holes into a wall stud and secured the backing plate to the wall with 2 1/4" screws.  The mounting studs hand-screwed into the back of the phone which allowed the phone to easily hang on the backplate, aligning the 12 holes in the back of the phone to the 1/4x20 threaded holes in the backplate.
 
 The phone is mounted at the standard height of 63" from the floor to the top of the housing.
 
-####Connectivity
+#### Connectivity
 
 Back when all payphones were owned by the phone company, a POTS line provisioned for a payphone provided dialtone to the phone.  When coins were inserted, the phone's totalizer sent simultaneous 1700+2200 Hz tones down the line for each 5 cents (nickel = one 66 ms tone, dime = two 66 ms tones with a 66 ms pause in between, quarter = five 33 ms tones with 33 ms pauses).
 
@@ -34,7 +34,7 @@ I connected the phone to a Grandstream HT701 SIP ATA and was able to make and re
 
 Since this a payphone, after all, it should require depositing coins to make a call.  Much older phones (like 3-slot rotary phones) required coins to be deposited before hearing a dial tone.  These were mostly phased out by the 1970s and replaced with phones that provided a dial tone first, allowing emergency calls without depositing coins as well as depositing extra coins for long-distance calls.  Using Asterisk, this payphone will be configured to provide a dial tone first and allow free emergency calls, but require 25 cents to call any other number.
 
-####Sending Coin Tones to Asterisk
+#### Sending Coin Tones to Asterisk
 
 Since the ATA only establishes audio between the phone and Asterisk after a recognizable pattern of digits has been dialed (and sent to Asterisk all at once in one INVITE request), Asterisk would not be able to respond to coin tones generated before dialing.
 
@@ -64,7 +64,7 @@ Using the ATA's "Offhook Auto-Dial" feature, I configured it to automatically (s
 	exten => 0,2,AGI(payphone.agi)
 	exten => 0,3,Hangup
 
-####Recognizing Coin Tones
+#### Recognizing Coin Tones
 
 Now that Asterisk is receiving the 1700+2200 Hz tones generated when coins are inserted, some code is needed to actually recognize them.  Using Asterisk EAGI would allow a program to read the raw audio stream and analyze it for the proper tone frequencies using the [Goertzel algorithm](https://en.wikipedia.org/wiki/Goertzel_algorithm), but doing so would be pretty complicated.
 
@@ -102,6 +102,6 @@ Now that the amount of inserted coins can be recognized, along with any digits d
 
 My routing script is [under development here](payphone.agi).
 
-####TODO
+#### TODO
 
 - Make the coin hopper queue up coins when inserted rather than immediately dropping them into the coin box, to allow for refunding.  This [requires sending high voltage](http://oldphoneguy.net/images/MPPwk.pdf) ([2](http://atcaonline.com/controller.html)) to the coin relay, and would have to be done out-of-band.
