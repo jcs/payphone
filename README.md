@@ -18,7 +18,7 @@ The replacement handset was wired differently than the handset that came with th
 
 To mount the phone to my wall, I drilled 5 holes into a wall stud and secured the backing plate to the wall with 2 1/4" screws.  The mounting studs hand-screwed into the back of the phone which allowed the phone to easily hang on the backplate, aligning the 12 holes in the back of the phone to the 1/4x20 threaded holes in the backplate.
 
-The phone is mounted at the standard height of 63" from the floor to the top of the housing.
+The phone is mounted at the recommended height of 63" from the floor to the top of the housing.
 
 #### Connectivity
 
@@ -104,4 +104,4 @@ My routing script is [under development here](payphone.agi).
 
 #### TODO
 
-- Make the coin hopper queue up coins when inserted rather than immediately dropping them into the coin box, to allow for refunding.  This [requires sending high voltage](http://oldphoneguy.net/images/MPPwk.pdf) ([2](http://atcaonline.com/controller.html)) to the coin relay, and would have to be done out-of-band.
+- Make the coin hopper queue up coins when inserted rather than immediately dropping them into the coin box, to allow for refunding.  This [requires sending high voltage](http://web.archive.org/web/20201127205016/http://oldphoneguy.net/images/MPPwk.pdf) ([2](http://web.archive.org/web/20171014015056/http://atcaonline.com/controller.html)) to the coin relay, and would have to be done out-of-band.
